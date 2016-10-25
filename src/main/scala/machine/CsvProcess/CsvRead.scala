@@ -21,6 +21,25 @@ object CsvRead {
     }).toDF("label", "features")
   }
 
+  // read csv file for clustering algorithm without label.
+  // but label is must be item for spark ml. so we can give it a dummy value.
+  def readNoLabelCsv(sparkSession: SparkSession, path: String): DataFrame = {
+    import sparkSession.implicits._
+    val df = sparkSession.read.csv(path)
+    df.map(row => {
+      val array = row.toSeq.map(an => an.toString.toDouble).toArray
+      val v = Vectors.dense(array)
+      (0L, v)
+    }).toDF("label", "features")
+  }
+
+  def readUserMovieCsv(sparkSession: SparkSession, path: String): DataFrame = {
+    import sparkSession.implicits._
+    val df = sparkSession.read.csv(path)
+    df.map(row => {
+      (row.getString(0).toInt, row.getString(1).toInt, row.getString(2).toDouble)
+    }).toDF("userId", "movieId", "rating")
+  }
 
   def main(args: Array[String]) {
     SetLogLevel.setLogLevels()
@@ -32,6 +51,9 @@ object CsvRead {
     val df = readCsv(session, path, header = true)
     df.printSchema()
     df.foreach(row => println(row.toString()))
+
+    val df2 = readNoLabelCsv(session, path)
+    df2.printSchema()
     session.stop()
 
   }

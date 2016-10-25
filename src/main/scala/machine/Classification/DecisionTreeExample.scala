@@ -23,19 +23,14 @@ import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{DecisionTreeClassificationModel, DecisionTreeClassifier}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
-import src.main.scala.SetLogLevel
+import src.main.scala.{SessionGenerator, SetLogLevel}
 import src.main.scala.machine.CsvProcess.CsvRead
 // $example off$
 import org.apache.spark.sql.SparkSession
 
 object DecisionTreeExample {
   def main(args: Array[String]): Unit = {
-    SetLogLevel.setLogLevels()
-    val spark = SparkSession
-      .builder
-      .master("local[1]")
-      .appName("MemberJoin")
-      .getOrCreate()
+    val spark = SessionGenerator.getSparkSession
 
     val data = CsvRead.readCsv(spark, "data/sample.csv", header = false)
 

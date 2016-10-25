@@ -23,7 +23,7 @@ object HowToCall {
 
     val evaluator = new BinaryClassificationEvaluator()
       .setLabelCol("label")
-        .setRawPredictionCol("prediction")
+      .setRawPredictionCol("prediction")
       // "areaUnderRoc" "areaUnderPR"
       .setMetricName("areaUnderROC")
     val accuracy = evaluator.evaluate(df)
