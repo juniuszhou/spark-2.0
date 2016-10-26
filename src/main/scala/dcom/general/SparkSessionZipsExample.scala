@@ -1,4 +1,4 @@
-package src.main.scala.general
+package dcom.general
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
