@@ -1,19 +1,44 @@
 package dcom
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import org.apache.spark.sql.SparkSession
+import scala.collection.mutable
 
-/**
-  * Created by junius on 16-10-18.
-  */
 object SimpleApp {
+
+
   def main(args: Array[String]) {
-    val writer = new PrintWriter(new File("data/userMovieTest.csv"))
-    (1 to 5).foreach(i => {
-      (1 to 5).foreach(j => {
-        writer.append(i.toString + "," + j + ",0\n")
+    val session = SparkSession.builder().master("local[2]").appName("aa").getOrCreate()
+    val data = session.sqlContext.read.json("/home/junius/Downloads/hyd")
+    // val table2 = session.sqlContext.read.json("path1", "path2")
+    val startTime = 0
+    val endTime = 149011284500000L
+    import session.implicits._
+    data.printSchema()
+    // data.filter(s"executeTime>=%s and executeTime<=%s".format(startTime, endTime)).foreach(row => println(row))
+
+    val df = data.filter(s"executeTime>=%s and executeTime<=%s".format(startTime, endTime)).map(row => {
+      val executeTime = row.getLong(row.fieldIndex("executeTime"))
+      val eventType = row.getString(row.fieldIndex("eventType"))
+      val rows = row.getStruct(row.fieldIndex("rows"))
+
+      val itemList = rows.getSeq[org.apache.spark.sql.Row](rows.fieldIndex("afterColumns"))
+
+      val map = mutable.Map[String, String]()
+      def removeSpecialChar(str: String):String = str.replaceAll("\r\n|\r|\n|\\[|\\]|\001| ", "")
+      itemList.map(row => {
+
+        val key = row.getString(row.fieldIndex("name"))
+        val value = row.getString(row.fieldIndex("value"))
+        map.put(if (key == null) "" else removeSpecialChar(key),
+          if (value == null) "" else removeSpecialChar(value))
       })
-    })
-    writer.close()
+      itemList.toList
+      "s"
+
+    }).count()
+
+    // df.foreach(list => list.foreach(row => println(row)))
+    print("Hello world")
 
   }
 }

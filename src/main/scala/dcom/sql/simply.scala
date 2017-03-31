@@ -1,10 +1,10 @@
-package sql
+package dcom.sql
 
 import org.apache.spark.sql.SparkSession
 
 object simply {
   def main(args: Array[String]) {
-    val session = SparkSession.builder().getOrCreate()
+    val session = SparkSession.builder().master("local[2]").getOrCreate()
     // if create data frame from list or seq, at least two items for each row.
     val list = List((0,1))
     val df = session.createDataFrame(data = list)
